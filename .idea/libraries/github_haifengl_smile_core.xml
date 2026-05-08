@@ -1,0 +1,31 @@
+<component name="libraryTable">
+  <library name="github.haifengl.smile.core" type="repository">
+    <properties maven-id="com.github.haifengl:smile-core:4.3.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/haifengl/smile-core/4.3.0/smile-core-4.3.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/haifengl/smile-base/4.3.0/smile-base-4.3.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/javacpp/1.5.11/javacpp-1.5.11-linux-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/javacpp/1.5.11/javacpp-1.5.11-windows-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/javacpp/1.5.11/javacpp-1.5.11-macosx-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/javacpp/1.5.11/javacpp-1.5.11-macosx-arm64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/openblas/0.3.28-1.5.11/openblas-0.3.28-1.5.11-linux-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/javacpp/1.5.11/javacpp-1.5.11.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/openblas/0.3.28-1.5.11/openblas-0.3.28-1.5.11-windows-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/openblas/0.3.28-1.5.11/openblas-0.3.28-1.5.11-macosx-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/openblas/0.3.28-1.5.11/openblas-0.3.28-1.5.11-macosx-arm64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/arpack-ng/3.9.1-1.5.11/arpack-ng-3.9.1-1.5.11.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/openblas/0.3.28-1.5.11/openblas-0.3.28-1.5.11.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/arpack-ng/3.9.1-1.5.11/arpack-ng-3.9.1-1.5.11-linux-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/arpack-ng/3.9.1-1.5.11/arpack-ng-3.9.1-1.5.11-windows-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/bytedeco/arpack-ng/3.9.1-1.5.11/arpack-ng-3.9.1-1.5.11-macosx-x86_64.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/epam/parso/2.0.14/parso-2.0.14.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/commons/commons-csv/1.13.0/commons-csv-1.13.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/commons-io/commons-io/2.18.0/commons-io-2.18.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.17.2/commons-codec-1.17.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/duckdb/duckdb_jdbc/1.2.0/duckdb_jdbc-1.2.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

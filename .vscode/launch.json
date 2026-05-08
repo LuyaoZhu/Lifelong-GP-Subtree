@@ -1,0 +1,306 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "GPRun",
+            "request": "launch",
+            "mainClass": "yimei.jss.gp.GPRun",
+            "projectName": "GPJSS-master-copy_91ffd18c"
+        },
+        {
+            "type": "java",
+            "name": "GPRun-baseline",
+            "request": "launch",
+            "mainClass": "yimei.jss.gp.GPRun",
+            "projectName": "GPJSS-master",
+            "args": [
+                "test/",
+                "-file",
+                "src/yimei/jss/algorithm/multipletreegp/multipletreegp-dynamic.params"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Evolve",
+            "request": "launch",
+            "mainClass": "ec.Evolve",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "MajorityGA",
+            "request": "launch",
+            "mainClass": "ec.app.majority.MajorityGA",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "Console",
+            "request": "launch",
+            "mainClass": "ec.display.Console",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "Slave",
+            "request": "launch",
+            "mainClass": "ec.eval.Slave",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "IslandExchange",
+            "request": "launch",
+            "mainClass": "ec.exchange.IslandExchange",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "GrammarParser",
+            "request": "launch",
+            "mainClass": "ec.gp.ge.GrammarParser",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "MersenneTwister",
+            "request": "launch",
+            "mainClass": "ec.util.MersenneTwister",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "MersenneTwisterFast",
+            "request": "launch",
+            "mainClass": "ec.util.MersenneTwisterFast",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "ParameterDatabase",
+            "request": "launch",
+            "mainClass": "ec.util.ParameterDatabase",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "ThreadPool",
+            "request": "launch",
+            "mainClass": "ec.util.ThreadPool",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "GaussianProcessRegression",
+            "request": "launch",
+            "mainClass": "smile.regression.GaussianProcessRegression",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "NeuralNetwork",
+            "request": "launch",
+            "mainClass": "smile.regression.NeuralNetwork",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "RBFNetwork",
+            "request": "launch",
+            "mainClass": "smile.regression.RBFNetwork",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "SVR",
+            "request": "launch",
+            "mainClass": "smile.regression.SVR",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "FJSSMain",
+            "request": "launch",
+            "mainClass": "yimei.jss.FJSSMain",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "JSSMain",
+            "request": "launch",
+            "mainClass": "yimei.jss.JSSMain",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "SurrogateAccuracyAnalysis",
+            "request": "launch",
+            "mainClass": "yimei.jss.analysis.SurrogateAccuracyAnalysis",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "GPMain",
+            "request": "launch",
+            "mainClass": "yimei.jss.gp.GPMain",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "GenerateTerminalSet",
+            "request": "launch",
+            "mainClass": "yimei.jss.helper.GenerateTerminalSet",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "GridResultCleaner",
+            "request": "launch",
+            "mainClass": "yimei.jss.helper.GridResultCleaner",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "GridResultFixer",
+            "request": "launch",
+            "mainClass": "yimei.jss.helper.GridResultFixer",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "TestResultCleaner",
+            "request": "launch",
+            "mainClass": "yimei.jss.helper.TestResultCleaner",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "FlexibleStaticInstance",
+            "request": "launch",
+            "mainClass": "yimei.jss.jobshop.FlexibleStaticInstance",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "Shop",
+            "request": "launch",
+            "mainClass": "yimei.jss.jobshop.Shop",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "StaticInstance",
+            "request": "launch",
+            "mainClass": "yimei.jss.jobshop.StaticInstance",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "MOGPMultiTreeRuleTest",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.MOGPMultiTreeRuleTest",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "MultipleTreeRuleTest",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.MultipleTreeRuleTest",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "NSGAIIMultiTreeRuleTest",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.NSGAIIMultiTreeRuleTest",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "RuleTest",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.RuleTest",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "RuleTestFeatureContribution",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.RuleTestFeatureContribution",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "RuleTestFor100Gen",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.RuleTestFor100Gen",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "RuleTestFreqCounter",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.RuleTestFreqCounter",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "SimpleRuleTest",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.SimpleRuleTest",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "ThreeNSGAIIMultiTreeRuleTest",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.ThreeNSGAIIMultiTreeRuleTest",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "WeightedsumMultiTreeRuleTest",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleanalysis.WeightedsumMultiTreeRuleTest",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "RuleComparison",
+            "request": "launch",
+            "mainClass": "yimei.jss.ruleevaluation.RuleComparison",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "JSSInstanceCompleter",
+            "request": "launch",
+            "mainClass": "yimei.util.JSSInstanceCompleter",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "LispParser",
+            "request": "launch",
+            "mainClass": "yimei.util.lisp.LispParser",
+            "projectName": "GPJSS-master"
+        },
+        {
+            "type": "java",
+            "name": "LispSimplifier",
+            "request": "launch",
+            "mainClass": "yimei.util.lisp.LispSimplifier",
+            "projectName": "GPJSS-master"
+        }
+    ]
+}
