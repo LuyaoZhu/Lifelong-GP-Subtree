@@ -30,10 +30,15 @@ import yimei.jss.simulation.DynamicSimulation;
 import yimei.jss.simulation.RoutingDecisionSituation;
 import yimei.jss.simulation.SequencingDecisionSituation;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static yimei.jss.algorithm.lifelongGPSubtree.FeatureConstructionCrossoverPipelineSimplyProtect.LispContains;
+import static yimei.jss.gp.GPRun.out_dir;
 
 /**
  * in each task, select individuals with good quality and diversity as the initial population of next task
@@ -86,9 +91,9 @@ public class GPRuleEvolutionStateLifelongGP extends GPRuleEvolutionStateLifelong
     PhenoCharacterisation[] pc = new PhenoCharacterisation[2];
 
     RuleOptimizationProblem problem;
-    ArrayList<double[]> BlockOccurrenceRate = new ArrayList<>();
-    ArrayList<Double> SeqBlockOccurrenceRate = new ArrayList<>();
-    ArrayList<Double> RouBlockOccurrenceRate = new ArrayList<>();
+    public static ArrayList<Double> BlockOccurrenceRateOneGen = new ArrayList<>();
+
+    ArrayList<Double> BlockOccurrenceRateEveryGen = new ArrayList<>();
 
     @Override
     public void setup(EvolutionState state, Parameter base) {
@@ -454,7 +459,12 @@ public class GPRuleEvolutionStateLifelongGP extends GPRuleEvolutionStateLifelong
         // SHOULD WE QUIT?
         if (generation == numGenerations - 1) {
 
+            writeTaskSpecificBlockDepth(TaskSpecificBuildingBlocks);
+            writeGeneralBlockDepth(GeneralBuildingBlocks);
+
             writeDiversityToFile(entropyDiversity);
+
+            writeBlockOccurrenceRateCrossoverToFile(BlockOccurrenceRateEveryGen);
 
 //            writeAccuracyToFile(MSEGen, SpearmanCorrelationGen, SamePCNum, AveragePCDistance);
 
@@ -551,6 +561,15 @@ public class GPRuleEvolutionStateLifelongGP extends GPRuleEvolutionStateLifelong
             }
 
         }
+
+        double avg = BlockOccurrenceRateOneGen.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0.0);
+
+        BlockOccurrenceRateOneGen.clear();
+
+        BlockOccurrenceRateEveryGen.add(avg);
 
 
 // POST-BREEDING EXCHANGING
@@ -837,7 +856,7 @@ public class GPRuleEvolutionStateLifelongGP extends GPRuleEvolutionStateLifelong
 //        }
 
         // record the depth of the features
-        seqFeatureDepth = new int[6];
+       /* seqFeatureDepth = new int[6];
         rouFeatureDepth = new int[6];
         int sumSeqFeature = 0;
 
@@ -890,7 +909,7 @@ public class GPRuleEvolutionStateLifelongGP extends GPRuleEvolutionStateLifelong
 
         rouArchiveDepth.add(rouFeatureDepth);
         numRouArchive.add(sumRouFeature);
-        System.out.println("The number of feature in routing Archive is  " + sumRouFeature);
+        System.out.println("The number of feature in routing Archive is  " + sumRouFeature);*/
 
         //now preserve them
         ArrayList<ArrayList<GPTree>> BlocksCurrentTask = new ArrayList<>();
@@ -1046,6 +1065,174 @@ public class GPRuleEvolutionStateLifelongGP extends GPRuleEvolutionStateLifelong
         }
     }
 
+    public void writeArchiveInformationToFile(ArrayList<Integer> numSeqArchive, ArrayList<Integer> numRouArchive, ArrayList<int[]> seqArchiveDepth, ArrayList<int[]> rouArchiveDepth) {
+        //fzhang 2019.5.21 save the number of cleared individuals
+        File weightFile = new File( out_dir + "/job." + jobSeed +  ".archiveInformation.csv");
+//        File weightFile = new File( "/job." + jobSeed + ".archiveInformation.csv"); // jobSeed = 0
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(weightFile));
+            writer.write("Gen,numSeqArchive,numRouArchive,seqDepth2,seqDepth3,seqDepth4,seqDepth5,seqDepth6,seqDepth7,rouDepth2,rouDepth3,rouDepth4,rouDepth5,rouDepth6,rouDepth7");
+            writer.newLine();
+            for (int i = 0; i < numSeqArchive.size(); i++) { //every two into one generation
+                //writer.newLine();
+                writer.write(i + ", " + numSeqArchive.get(i) + ", " + numRouArchive.get(i) + ", "
+                        + seqArchiveDepth.get(i)[0] + ", " + seqArchiveDepth.get(i)[1] + ", "+ seqArchiveDepth.get(i)[2] + ", "
+                        + seqArchiveDepth.get(i)[3] + ", " + seqArchiveDepth.get(i)[4] + ", "+ seqArchiveDepth.get(i)[5] + ", "
+                        + rouArchiveDepth.get(i)[0] + ", " + rouArchiveDepth.get(i)[1] + ", "+ rouArchiveDepth.get(i)[2] + ", "
+                        + rouArchiveDepth.get(i)[3] + ", " + rouArchiveDepth.get(i)[4] + ", "+ rouArchiveDepth.get(i)[5] +"\n");
+            }
+            numSeqArchive.clear();
+            numRouArchive.clear();
+            seqArchiveDepth.clear();
+            rouArchiveDepth.clear();
+//			writer.write(numGenerations -1 + ", " + 0 + "\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeBlockOccurrenceRateCrossoverToFile(ArrayList<Double> BlockOccurrenceRateEveryGen) {
+
+        File weightFile = new File(out_dir + "/job." + jobSeed + ".blockOccurrenceRateCrossover.csv");
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(weightFile))) {
+
+            // header
+            writer.write("Gen,OccurrenceRate");
+            writer.newLine();
+
+            // data
+            for (int i = 0; i < BlockOccurrenceRateEveryGen.size(); i++) {
+
+                double value = BlockOccurrenceRateEveryGen.get(i);
+
+                String line = i + "," + String.format("%.4f", value);
+
+                writer.write(line);
+                writer.newLine();
+            }
+
+            BlockOccurrenceRateEveryGen.clear();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void writeTaskSpecificBlockDepth(
+            ArrayList<ArrayList<ArrayList<GPTree>>> TaskSpecificBuildingBlocks) {
+
+        File file = new File(out_dir + "/job." + jobSeed + ".taskSpecificBlockDepth.csv");
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+
+            writer.write("Task,Type,Total,Depth2,Depth3,Depth4,Depth5,Depth6,Depth7");
+            writer.newLine();
+
+            for (int task = 0; task < TaskSpecificBuildingBlocks.size(); task++) {
+
+                ArrayList<ArrayList<GPTree>> oneTask =
+                        TaskSpecificBuildingBlocks.get(task);
+
+                if (oneTask == null) continue;
+
+                for (int treeID = 0; treeID < 2; treeID++) {
+
+                    String type = (treeID == 0) ? "SEQ" : "ROU";
+
+                    int total = 0;
+                    int[] depthCount = new int[6];
+
+                    if (oneTask.size() > treeID && oneTask.get(treeID) != null) {
+
+                        ArrayList<GPTree> blocks = oneTask.get(treeID);
+                        total = blocks.size();
+
+                        for (GPTree tree : blocks) {
+
+                            if (tree == null || tree.child == null) continue;
+
+                            int depth = tree.child.depth();
+
+                            if (depth >= 2 && depth <= 7) {
+                                depthCount[depth - 2]++;
+                            }
+                        }
+                    }
+
+                    writer.write(task + ","
+                            + type + ","
+                            + total + ","
+                            + depthCount[0] + ","
+                            + depthCount[1] + ","
+                            + depthCount[2] + ","
+                            + depthCount[3] + ","
+                            + depthCount[4] + ","
+                            + depthCount[5]);
+
+                    writer.newLine();
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeGeneralBlockDepth(
+            ArrayList<ArrayList<GPTree>> GeneralBuildingBlocks) {
+
+        File file = new File(out_dir + "/job." + jobSeed + ".generalBlockDepth.csv");
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+
+            writer.write("Type,Total,Depth2,Depth3,Depth4,Depth5,Depth6,Depth7");
+            writer.newLine();
+
+            for (int treeID = 0; treeID < 2; treeID++) {
+
+                String type = (treeID == 0) ? "SEQ" : "ROU";
+
+                int total = 0;
+                int[] depthCount = new int[6];
+
+                if (GeneralBuildingBlocks != null
+                        && GeneralBuildingBlocks.size() > treeID
+                        && GeneralBuildingBlocks.get(treeID) != null) {
+
+                    ArrayList<GPTree> blocks = GeneralBuildingBlocks.get(treeID);
+                    total = blocks.size();
+
+                    for (GPTree tree : blocks) {
+
+                        if (tree == null || tree.child == null) continue;
+
+                        int depth = tree.child.depth();
+
+                        if (depth >= 2 && depth <= 7) {
+                            depthCount[depth - 2]++;
+                        }
+                    }
+                }
+
+                writer.write(type + ","
+                        + total + ","
+                        + depthCount[0] + ","
+                        + depthCount[1] + ","
+                        + depthCount[2] + ","
+                        + depthCount[3] + ","
+                        + depthCount[4] + ","
+                        + depthCount[5]);
+
+                writer.newLine();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

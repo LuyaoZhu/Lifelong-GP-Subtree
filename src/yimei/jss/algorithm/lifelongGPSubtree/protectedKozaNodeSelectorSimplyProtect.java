@@ -166,7 +166,7 @@ public class protectedKozaNodeSelectorSimplyProtect extends KozaNodeSelector {
         }
 
         //record the ratio of building blocks on the trees
-        
+        ((GPRuleEvolutionStateLifelongGP)s).BlockOccurrenceRateOneGen.add(((double)candidates.size())/total);
 
         int pickIndex;
 
