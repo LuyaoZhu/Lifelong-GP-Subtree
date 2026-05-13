@@ -112,7 +112,7 @@ public class GPRuleEvolutionStateLifelongGPV0 extends GPRuleEvolutionState {
         entropyDiversity.add(diversityValue);
 
         for (int i=0; i<indsCharListsMultiTree.length; i++) {
-            ((GPIndividual)population.subpops[0].individuals[i]).PC = indsCharListsMultiTree[i];
+            ((GPIndividual)population.subpops[0].individuals[i]).PCs.add(indsCharListsMultiTree[i]);
         }
 
         double fromLastTaskNumber = 0;
@@ -222,7 +222,7 @@ public class GPRuleEvolutionStateLifelongGPV0 extends GPRuleEvolutionState {
                 savedTopIndividuals.add(population.subpops[0].individuals[i]);
 
 
-                List<Integer> key = Arrays.stream(((GPIndividual)population.subpops[0].individuals[i]).PC)
+                List<Integer> key = Arrays.stream(((GPIndividual)population.subpops[0].individuals[i]).PCs.get(((GPIndividual)population.subpops[0].individuals[i]).PCs.size()-1))
                             .boxed()
                             .collect(Collectors.toList());
                 PCIndividualMap.put(key, population.subpops[0].individuals[i]);

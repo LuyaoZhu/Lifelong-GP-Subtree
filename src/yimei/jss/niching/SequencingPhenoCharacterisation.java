@@ -398,22 +398,88 @@ public class SequencingPhenoCharacterisation extends PhenoCharacterisation {
         //fzhang 2019.6.22 change to 7, otherwise, can not get this kinds of simulations---because the simulation can not enough queue size as 7
 //        int minQueueLength = simulation.getNumWorkCenters();
         int minQueueLength = 2;
-        int numDecisionSituations = 100;//used for measuring the behavior of different rules
+        int numDecisionSituations = 20;//used for measuring the behavior of different rules
         long shuffleSeed = 19980818;
 
         List<SequencingDecisionSituation> situations = simulation.sequencingDecisionSituations(minQueueLength); //situations have 20 elements
 
-        Collections.shuffle(situations, new Random(shuffleSeed)); //Randomly permute the specified list using the specified source of randomness.
+//        Collections.shuffle(situations, new Random(shuffleSeed)); //Randomly permute the specified list using the specified source of randomness.
         //randomly change the sorting of list of situations
 
 //        situations = selectSituations(situations,state);
 
-        situations = situations.subList(0, numDecisionSituations); //Returns a view of the portion of this list between the specified fromIndex,
+//        situations = situations.subList(0, numDecisionSituations); //Returns a view of the portion of this list between the specified fromIndex,
         //inclusive, and toIndex, exclusive. (If fromIndex and toIndex are equal, the returned list is empty.)
+
+        situations = selectSituations(situations,numDecisionSituations,shuffleSeed);
 
         simulation.reset();
 
         return new SequencingPhenoCharacterisation(defaultSequencingRule, situations);
+    }
+
+    public static List<SequencingDecisionSituation> selectSituations(
+            List<SequencingDecisionSituation> situations,
+            int minNumSituations,
+            long seed) {
+
+        Random rand = new Random(seed);
+
+        // queue size -> situations
+        Map<Integer, List<SequencingDecisionSituation>> grouped =
+                new HashMap<>();
+
+        for (SequencingDecisionSituation s : situations) {
+
+            int size = s.getQueue().size();
+
+            grouped.computeIfAbsent(size, k -> new ArrayList<>()).add(s);
+        }
+
+        List<SequencingDecisionSituation> selected =
+                new ArrayList<>();
+
+        // 1. first pick one from each queue size
+        List<Integer> sizes =
+                new ArrayList<>(grouped.keySet());
+
+        Collections.sort(sizes);
+
+        for (int size : sizes) {
+
+            List<SequencingDecisionSituation> group =
+                    grouped.get(size);
+
+            Collections.shuffle(group, rand);
+
+            selected.add(group.get(0));
+        }
+
+        // 2. if still not enough, fill randomly
+        if (selected.size() < minNumSituations) {
+
+            List<SequencingDecisionSituation> remaining =
+                    new ArrayList<>(situations);
+
+            remaining.removeAll(selected);
+
+            Collections.shuffle(remaining, rand);
+
+            int needed =
+                    minNumSituations - selected.size();
+
+            for (int i = 0;
+                 i < Math.min(needed, remaining.size());
+                 i++) {
+
+                selected.add(remaining.get(i));
+            }
+        }
+
+        // 3. final shuffle
+        Collections.shuffle(selected, rand);
+
+        return selected;
     }
 
 }

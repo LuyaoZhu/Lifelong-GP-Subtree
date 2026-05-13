@@ -98,7 +98,7 @@ public class JobArrivalEvent extends AbstractEvent {
 //        }
 
         //fzhang 2019.9.4 in order to get same length matrix
-        if (operation.getOperationOptions().size()== minQueueLength && simulation.getNumBatchesArrived() >= simulation.getWarmupBatches()) {
+        if (operation.getOperationOptions().size()>= minQueueLength && simulation.getNumBatchesArrived() >= simulation.getWarmupBatches()) {
             situations.add(decisionSituation.clone());
         }
 

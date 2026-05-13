@@ -97,6 +97,8 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
 
     public List<GPRSurrogateModel> GPRSurrogateModels = new ArrayList<>();
 
+    public ArrayList<PhenoCharacterisation[]> decisionSituationsEachTask = new ArrayList<>();
+
     public double minFitness;
     @Override
     public void setup(EvolutionState state, Parameter base) {
@@ -112,8 +114,6 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
 
         super.setup(this, base);
 
-        phenoCharacterisation = new PhenoCharacterisation[2];
-
         pcDistance = parameters.getIntWithDefault(new Parameter("pcDistance"), null, 1);
 
         simulationsPerTask = 10;
@@ -124,10 +124,10 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
 
         surrogateThreshold = parameters.getDoubleWithDefault(new Parameter("surrogateThreshold"), null, 5);
 
-        phenoCharacterisation[0] =
-                SequencingPhenoCharacterisation.defaultPhenoCharacterisation();
-        phenoCharacterisation[1] =
-                RoutingPhenoCharacterisation.defaultPhenoCharacterisation();
+//        phenoCharacterisation[0] =
+//                SequencingPhenoCharacterisation.defaultPhenoCharacterisation();
+//        phenoCharacterisation[1] =
+//                RoutingPhenoCharacterisation.defaultPhenoCharacterisation();
 
     }
 
@@ -139,20 +139,39 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
         RuleOptimizationProblem problem = (RuleOptimizationProblem) evaluator.p_problem;
         DynamicSimulation simulation = (DynamicSimulation) ((MultipleTreeMultipleRuleEvaluationModel) problem.getEvaluationModel()).getSchedulingSet().getSimulations().get(generation / generationPerTask);
 
-        //in each generation, calculate phenoCharacterisation
-        int[][] indsCharListsMultiTree = phenotypicForSurrogate.muchBetterPhenotypicPopulation(this, phenoCharacterisation);
+        if(generation%generationPerTask == 0) {
+            phenoCharacterisation = new PhenoCharacterisation[2];
+            phenoCharacterisation[0] = SequencingPhenoCharacterisation.currentTaskPhenoCharacterisation(simulation);
+            phenoCharacterisation[1] = RoutingPhenoCharacterisation.currentTaskPhenoCharacterisation(simulation, ((SequencingPhenoCharacterisation) phenoCharacterisation[0]).decisionSituations.size());
 
-        //assign PC to individuals
-        for (int s = 0; s < indsCharListsMultiTree.length; s++) {
-            ((GPIndividual) population.subpops[0].individuals[s]).PC = indsCharListsMultiTree[s];
+            decisionSituationsEachTask.add(phenoCharacterisation);
         }
 
         //record population diversity
-        double[] diversityValue = new double[this.population.subpops.length];
-        diversityValue[0] = PopulationUtils.entropy(indsCharListsMultiTree);
-//        System.out.println(diversityValue[0]);
-        entropyDiversity.add(diversityValue);
+        double[] diversityValue = new double[decisionSituationsEachTask.size()];
 
+        for (int s = 0; s < population.subpops[0].individuals.length; s++) {
+            ((GPIndividual) population.subpops[0].individuals[s]).PCs = new ArrayList<>();
+        }
+
+        for ( int i=0; i<decisionSituationsEachTask.size(); i++ ) {
+
+            PhenoCharacterisation[] pc = decisionSituationsEachTask.get(i);
+
+            //in each generation, calculate phenoCharacterisation
+            int[][] indsCharListsMultiTree = phenotypicForSurrogate.muchBetterPhenotypicPopulation(this, pc);
+
+            //assign PC to individuals
+            for (int s = 0; s < population.subpops[0].individuals.length; s++) {
+                ((GPIndividual) population.subpops[0].individuals[s]).PCs.add(indsCharListsMultiTree[s]);
+            }
+
+            diversityValue[i] = PopulationUtils.entropy(indsCharListsMultiTree);
+//        System.out.println(diversityValue[0]);
+        }
+        double[] diversity = new double[population.subpops.length];
+        diversity[0] = Arrays.stream(diversityValue).average().getAsDouble();
+        entropyDiversity.add(diversity);
         // EVALUATION
         statistics.preEvaluationStatistics(this);
 
@@ -178,7 +197,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
         for (int ind = 0; ind < population.subpops[0].individuals.length; ind++) {
             GPIndividual individual = (GPIndividual) population.subpops[0].individuals[ind].clone();
             if (individual.fitness.fitness() < judgeValue) {
-                List<Integer> key = Arrays.stream(individual.PC)
+                List<Integer> key = Arrays.stream(individual.PCs.get(individual.PCs.size()-1))
                         .boxed()
                         .collect(Collectors.toList());
                 PCIndividualMap.put(key, individual);
@@ -229,7 +248,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
                 if(thresholdsEveryGeneration.get(thresholdsEveryGeneration.size() - 1)[0] == 0){ //means this is the first time to calculate the thresholds
                     for (int t = 0; t < surrogateSamples.size(); t++) {
 //                    estimatedFitness[t] = evaluatePopulation(this, surrogateSamples.get(t), surrogateFitness.get(t), 10);
-                        estimatedFitness[t] = evaluatePopulationV1(this, surrogateSamples.get(t), surrogateFitness.get(t), surrogateThreshold);
+                        estimatedFitness[t] = evaluatePopulationV1(this, surrogateSamples.get(t), surrogateFitness.get(t), 0.2*surrogateSamples.get(t)[0].length,t);
 //                System.out.println(Arrays.stream(estimatedFitness[t]).min().getAsDouble());
                         double minInPreviousTask = Arrays.stream(estimatedFitness[t]).min().getAsDouble();
                         for (int a = 0; a < estimatedFitness[t].length; a++) {
@@ -507,13 +526,13 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
                 savedTopIndividuals.add(population.subpops[0].individuals[i]);
             }
 
-//            population.clear();
-//            population = initializer.initialPopulation(this, 0);
-            population = breeder.breedPopulation(this);  //only use mutation
+            population.clear();
+            population = initializer.initialPopulation(this, 0);
+//            population = breeder.breedPopulation(this);  //only use mutation
 
             for (int sub = 0; sub < this.population.subpops.length; sub++) {
                 for (int replace = 0; replace < savedTopIndividuals.size(); replace++) {
-                    population.subpops[sub].individuals[population.subpops[0].individuals.length-replace-1] = savedTopIndividuals.get(replace);
+                    population.subpops[sub].individuals[replace] = savedTopIndividuals.get(replace);
                 }
             }
 
@@ -590,11 +609,11 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
             for (int i = 0; i < population.subpops[0].individuals.length; i++) {
                 GPIndividual individual = (GPIndividual) population.subpops[0].individuals[i];
                 double dMin = Double.MAX_VALUE;
-                int[] pcIntermediate = individual.PC;
+                int[] pcIntermediate = individual.PCs.get(t);
 
                 for (int pc = 0; pc < indsCharListsMultiTree.length; pc++) {
                     int[] pcModel = indsCharListsMultiTree[pc];
-                    double d = PhenoCharacterisation.distance(pcIntermediate, pcModel);
+                    double d = PhenoCharacterisation.hammingDistance(pcIntermediate, pcModel);
                     if (d == 0) {
                         dMin = d;
                         break;
@@ -618,7 +637,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
         return meanPCDistance;
     }
 
-    private double[] calculateMediumPCDistance(ArrayList<int[][]> surrogateSamples) {
+/*    private double[] calculateMediumPCDistance(ArrayList<int[][]> surrogateSamples) {
         double[] mediumPCDistance = new double[surrogateSamples.size()];
 
         //calculate the fitness based on surrogate model
@@ -664,7 +683,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
 
         }
         return mediumPCDistance;
-    }
+    }*/
 
     private double[] calculateThresholds(double[][] estimatedFitness) {
 
@@ -996,7 +1015,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
         //first remove some individuals with the same PC
         for (int ind = 0; ind < population.subpops[0].individuals.length; ind++) {
             GPIndividual individual = (GPIndividual) population.subpops[0].individuals[ind].clone();
-            PC[ind] = individual.PC;
+            PC[ind] = individual.PCs.get(individual.PCs.size() - 1);
         }
 
 
@@ -1079,7 +1098,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
         //first remove some individuals with the same PC
         for (int ind = 0; ind < population.subpops[0].individuals.length; ind++) {
             GPIndividual individual = (GPIndividual) population.subpops[0].individuals[ind].clone();
-            PC[ind] = individual.PC;
+            PC[ind] = individual.PCs.get(individual.PCs.size() - 1);
         }
 
 
@@ -1155,7 +1174,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
         return thresholds;
     }
 
-    private double[] calculateThresholdsSimilarityV2(
+    /*private double[] calculateThresholdsSimilarityV2(
             double[][] estimatedFitness
     ) {
 
@@ -1240,7 +1259,7 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
         }
 
         return thresholds;
-    }
+    }*/
 
 
     public double calculateReferenceRuleFitness(DynamicSimulation simulation) {
@@ -2340,6 +2359,63 @@ public class GPRuleEvolutionStateLifelongGPV10N1 extends GPRuleEvolutionStateLif
                 for (int pc = 0; pc < indsCharListsMultiTree.length; pc++) {
                     int[] pcModel = indsCharListsMultiTree[pc];
                     double d = PhenoCharacterisation.distance(pcIntermediate, pcModel);
+                    if (d == 0) {
+                        dMin = d;
+                        index = pc;
+                        break;
+                    }
+
+                    if (d < dMin) {
+                        dMin = d;
+                        index = pc;
+                    }
+                }
+                if (dMin <= threshold) {
+                    rawEstimated = fitnessesForModel[index];
+                    estimatedFitness[i] = fitnessesForModel[index];
+
+                } else {
+                    estimatedFitness[i] = Double.MAX_VALUE;
+                    rawEstimated = Double.MAX_VALUE;
+                }
+             }
+
+        }
+
+        return estimatedFitness;
+
+    }
+
+    public double[] evaluatePopulationV1(final EvolutionState state, int[][] indsCharListsMultiTree, double[] fitnessesForModel, double threshold, int taskID) {
+
+        int[][][] indsCharListsIntermediatePop = new int[decisionSituationsEachTask.size()][][]; //3. calculate the phenotypic characteristic
+
+        for (int i = 0; i < decisionSituationsEachTask.size(); i++) {
+            PhenoCharacterisation[] pc = decisionSituationsEachTask.get(i);
+            indsCharListsIntermediatePop[i] = phenotypicForSurrogate.muchBetterPhenotypicPopulation(state, pc); //3. calculate the phenotypic characteristic
+        }
+
+        double[] estimatedFitness = new double[population.subpops[0].individuals.length];
+        double[] realFitness = new double[population.subpops[0].individuals.length];
+
+        for (int sub = 0; sub < state.population.subpops.length; sub++) {
+
+            for (int i = 0; i < state.population.subpops[sub].individuals.length; i++) //
+            {
+                Individual individual = state.population.subpops[sub].individuals[i];
+                double rawEstimated = 0;
+
+                //KNN
+                //===============================start==============================================
+                double dMin = Double.MAX_VALUE;
+                int index = 0;
+
+                int[] pcIntermediate = indsCharListsIntermediatePop[taskID][i];
+                //calculate the fitness based on surrogate model
+                for (int pc = 0; pc < indsCharListsMultiTree.length; pc++) {
+                    int[] pcModel = indsCharListsMultiTree[pc];
+//                    double d = PhenoCharacterisation.distance(pcIntermediate, pcModel);
+                    double d = PhenoCharacterisation.hammingDistance(pcIntermediate, pcModel);
                     if (d == 0) {
                         dMin = d;
                         index = pc;

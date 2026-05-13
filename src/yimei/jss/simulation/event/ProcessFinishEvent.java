@@ -137,7 +137,7 @@ public class ProcessFinishEvent extends AbstractEvent {
 */
 
             //fzhang 2019.9.4 change all the decision size as minQueueLength, in order to keep the matrix has the same length
-            if (workCenter.getQueue().size() == minQueueLength) { //when set operation with different processing time, the queue is hard to >= minQueueLength, an error happens here. Yeah, it's!
+            if (workCenter.getQueue().size() >= minQueueLength) { //when set operation with different processing time, the queue is hard to >= minQueueLength, an error happens here. Yeah, it's!
                 situations.add(sequencingDecisionSituation.clone());
             }
 
@@ -205,7 +205,7 @@ public class ProcessFinishEvent extends AbstractEvent {
             }
 
             if (process.getOperationOption().getOperation().getNext().getOperationOptions().size()
-                    == minOptions) {
+                    >= minOptions) {
                 Operation o = process.getOperationOption().getOperation();
                 RoutingDecisionSituation r = o.getNext().routingDecisionSituation(simulation.getSystemState());
                 situations.add(r.clone());

@@ -106,7 +106,10 @@ public class GPIndividual extends Individual
 
     public Boolean fromTS;
 
+    public ArrayList<int[]> PCs;
+
     public int[] PC;
+
     public int[][] NPC;
     
     public Parameter defaultBase()

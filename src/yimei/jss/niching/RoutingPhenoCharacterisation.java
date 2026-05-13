@@ -316,20 +316,117 @@ public class RoutingPhenoCharacterisation extends PhenoCharacterisation {
 
         //fzhang 2019.6.22 change to 7, otherwise, can not get this kinds of simulations---because the simulation can not enough queue size as 7
         int minQueueLength = 2;
-        int numDecisionSituations = 100;//used for measuring the behavior of different rules
+        int numDecisionSituations = 20;//used for measuring the behavior of different rules
         long shuffleSeed = 19980818;
 
         List<RoutingDecisionSituation> situations = simulation.routingDecisionSituations(minQueueLength);
 
         Collections.shuffle(situations, new Random(shuffleSeed));
-
         situations = situations.subList(0, numDecisionSituations);
-//        situations = selectSituations(situations, state);
 
         simulation.reset();
 //
         return new RoutingPhenoCharacterisation(defaultRoutingRule, situations);
 
+    }
+
+    public static PhenoCharacterisation currentTaskPhenoCharacterisation(DynamicSimulation simulation, int seqDecisionSituationNum) {
+
+        AbstractRule defaultSequencingRule = new WSPT(RuleType.SEQUENCING); //op.getProcTime() / op.getJob().getWeight();
+        AbstractRule defaultRoutingRule = new WIQ(RuleType.ROUTING);
+
+//        AbstractRule defaultSequencingRule = new GPRule(RuleType.SEQUENCING,((GPIndividual)state.population.subpops[0].individuals[0]).trees[0]);
+//        AbstractRule defaultRoutingRule = new GPRule(RuleType.ROUTING,((GPIndividual)state.population.subpops[0].individuals[0]).trees[1]);
+
+
+        simulation.setSequencingRule(defaultSequencingRule);
+        simulation.setRoutingRule(defaultRoutingRule);
+
+        //fzhang 2019.6.22 change to 7, otherwise, can not get this kinds of simulations---because the simulation can not enough queue size as 7
+        int minQueueLength = 2;
+        int numDecisionSituations = 20;//used for measuring the behavior of different rules
+        long shuffleSeed = 19980818;
+
+        List<RoutingDecisionSituation> situations = simulation.routingDecisionSituations(minQueueLength);
+
+//        Collections.shuffle(situations, new Random(shuffleSeed));
+//        situations = situations.subList(0, numDecisionSituations);
+//        situations = selectSituations(situations, state);
+
+        situations = selectRoutingSituations(situations,seqDecisionSituationNum,shuffleSeed);
+
+        simulation.reset();
+//
+        return new RoutingPhenoCharacterisation(defaultRoutingRule, situations);
+
+    }
+
+    public static List<RoutingDecisionSituation> selectRoutingSituations(
+            List<RoutingDecisionSituation> situations,
+            int targetNum,
+            long seed) {
+
+        Random rand = new Random(seed);
+
+        // queue size -> situations
+        Map<Integer, List<RoutingDecisionSituation>> grouped =
+                new HashMap<>();
+
+        for (RoutingDecisionSituation s : situations) {
+
+            int size = s.getQueue().size();
+
+            grouped.computeIfAbsent(size, k -> new ArrayList<>()).add(s);
+        }
+
+        List<RoutingDecisionSituation> selected =
+                new ArrayList<>();
+
+        // 1. first select one unique size
+        List<Integer> sizes =
+                new ArrayList<>(grouped.keySet());
+
+        Collections.sort(sizes);
+
+        for (int size : sizes) {
+
+            List<RoutingDecisionSituation> group =
+                    grouped.get(size);
+
+            Collections.shuffle(group, rand);
+
+            selected.add(group.get(0));
+
+            // enough already
+            if (selected.size() >= targetNum)
+                break;
+        }
+
+        // 2. if not enough, randomly fill
+        if (selected.size() < targetNum) {
+
+            List<RoutingDecisionSituation> remaining =
+                    new ArrayList<>(situations);
+
+            remaining.removeAll(selected);
+
+            Collections.shuffle(remaining, rand);
+
+            int needed =
+                    targetNum - selected.size();
+
+            for (int i = 0;
+                 i < Math.min(needed, remaining.size());
+                 i++) {
+
+                selected.add(remaining.get(i));
+            }
+        }
+
+        // 3. final shuffle
+        Collections.shuffle(selected, rand);
+
+        return selected;
     }
 
 }

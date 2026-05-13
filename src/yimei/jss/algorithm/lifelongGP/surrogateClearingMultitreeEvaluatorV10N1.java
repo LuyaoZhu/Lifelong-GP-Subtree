@@ -186,9 +186,10 @@ public class surrogateClearingMultitreeEvaluatorV10N1 extends SimpleEvaluator {
                 double[][] estimatedFitness = new double[state.generation/((GPRuleEvolutionStateLifelongGPV10N1) state).generationPerTask + 1][state.population.subpops[0].individuals.length];
                 for (int task=0; task<estimatedFitness.length; task++) {
                     if (task == estimatedFitness.length - 1) {
-                        estimatedFitness[task] = this.evaluatePopulation(state, tempindsCharListsMultiTree, tempfitnessesForModel, ((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateThreshold);
+//                        estimatedFitness[task] = this.evaluatePopulation(state, tempindsCharListsMultiTree, tempfitnessesForModel, ((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateThreshold);
+                        estimatedFitness[task] = this.evaluatePopulation(state, tempindsCharListsMultiTree, tempfitnessesForModel,0.2*tempindsCharListsMultiTree[0].length,task);
                     } else {
-                        estimatedFitness[task] = this.evaluatePopulation(state, ((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateSamples.get(task), ((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateFitness.get(task), ((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateThreshold);
+                        estimatedFitness[task] = this.evaluatePopulation(state, ((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateSamples.get(task), ((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateFitness.get(task), 0.2*((GPRuleEvolutionStateLifelongGPV10N1) state).surrogateSamples.get(task)[0].length,task);
                         //normalise
                         double minInPreviousTask = Arrays.stream(estimatedFitness[task]).min().getAsDouble();
                         for (int a = 0; a < estimatedFitness[task].length; a++) {
@@ -319,9 +320,11 @@ public class surrogateClearingMultitreeEvaluatorV10N1 extends SimpleEvaluator {
         }
     }
 
-    public double[] evaluatePopulation(final EvolutionState state, int[][] indsCharListsMultiTree, double[] fitnessesForModel, double threshold) {
+    public double[] evaluatePopulation(final EvolutionState state, int[][] indsCharListsMultiTree, double[] fitnessesForModel, double threshold, int taskID) {
 
-        int[][] indsCharListsIntermediatePop = phenotypicForSurrogate.muchBetterPhenotypicPopulation(state, phenoCharacterisation); //3. calculate the phenotypic characteristic
+        PhenoCharacterisation[] decisionPoints = ((GPRuleEvolutionStateLifelongGPV10N1)state).decisionSituationsEachTask.get(taskID);
+
+        int[][] indsCharListsIntermediatePop = phenotypicForSurrogate.muchBetterPhenotypicPopulation(state, decisionPoints); //3. calculate the phenotypic characteristic
 
         double[] estimatedFitnesses = new double[state.population.subpops[0].individuals.length];
 
@@ -346,7 +349,7 @@ public class surrogateClearingMultitreeEvaluatorV10N1 extends SimpleEvaluator {
                         //calculate the fitness based on surrogate model
                         for (int pc = 0; pc < indsCharListsMultiTree.length; pc++) {
                             int[] pcModel = indsCharListsMultiTree[pc];
-                            double d = PhenoCharacterisation.distance(pcIntermediate, pcModel);
+                            double d = PhenoCharacterisation.hammingDistance(pcIntermediate, pcModel);
                             if (d == 0) {
                                 dMin = d;
                                 index = pc;

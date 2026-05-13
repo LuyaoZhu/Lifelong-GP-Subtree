@@ -14,13 +14,17 @@ public class SimpleKMedoids {
     }
 
     /** Squared Euclidean distance (faster, monotonic to Euclidean). */
-    private static double dist2(double[] a, double[] b) {
-        double s = 0.0;
-        for (int i = 0; i < a.length; i++) {
-            double d = a[i] - b[i];
-            s += d * d;
+    private static double dist2(double[] arr1, double[] arr2) {
+        if (arr1.length != arr2.length) {
+            throw new IllegalArgumentException("数组长度必须相同");
         }
-        return s;
+        double distance = 0;
+        for (int i = 0; i < arr1.length; i++) {
+            if (arr1[i] != arr2[i]) {
+                distance++;
+            }
+        }
+        return distance;
     }
 
     /** k-medoids with reproducible initialization + iterative refine. */

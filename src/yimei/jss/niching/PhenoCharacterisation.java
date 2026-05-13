@@ -107,6 +107,19 @@ public abstract class PhenoCharacterisation {
         return distance;
     }
 
+    public static double hammingDistance(double[] arr1, double[] arr2) {
+        if (arr1.length != arr2.length) {
+            throw new IllegalArgumentException("数组长度必须相同");
+        }
+        double distance = 0;
+        for (int i = 0; i < arr1.length; i++) {
+            if (arr1[i] != arr2[i]) {
+                distance++;
+            }
+        }
+        return distance;
+    }
+
     public static double[] convertToDouble(int[] input) {
         double[] result = new double[input.length];
         for (int i = 0; i < input.length; i++) {
